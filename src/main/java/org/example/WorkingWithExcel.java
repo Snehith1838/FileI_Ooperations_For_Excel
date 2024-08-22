@@ -13,12 +13,13 @@ import java.util.Scanner;
 
 public class WorkingWithExcel {
     public static void main(String[] args) throws IOException {
-        String filepath = "C:\\Project\\StudentExcelData\\StudentExcel.xlsx";
+        String filepath = "C:\\Project\\ExcelData\\StudentExcelData\\StudentExcel.xlsx";
 
         Scanner scn = new Scanner(System.in);
         //writeExcel(filepath,scn);
         readExcel(filepath);
         //updateExcel(filepath,scn);
+        addingDataToExcel(filepath,scn);
 
     }
 
@@ -50,23 +51,6 @@ public class WorkingWithExcel {
             row.createCell(2).setCellValue(marks);
 
         }
-/*
-        Row row1 = sheet.createRow(1);
-        row1.createCell(0).setCellValue(101);
-        row1.createCell(1).setCellValue("Snehith");
-        row1.createCell(2).setCellValue(92);
-
-        Row row2 = sheet.createRow(2);
-        row2.createCell(0).setCellValue(102);
-        row2.createCell(1).setCellValue("Sai");
-        row2.createCell(2).setCellValue(95);
-
-        Row row3 = sheet.createRow(3);
-        row3.createCell(0).setCellValue(103);
-        row3.createCell(1).setCellValue("Mahi");
-        row3.createCell(2).setCellValue(98);
-
- */
 
         try(FileOutputStream fileOutputStream = new FileOutputStream(filepath)){
             workbook.write(fileOutputStream);
@@ -79,7 +63,7 @@ public class WorkingWithExcel {
 
     private static void readExcel(String filepath) throws IOException{
         try (FileInputStream inputStream = new FileInputStream(filepath);
-             XSSFWorkbook workbook = new XSSFWorkbook(filepath)){
+             XSSFWorkbook workbook = new XSSFWorkbook(inputStream)){
             XSSFSheet sheet = workbook.getSheetAt(0);
             for (Row row : sheet){
                 for (Cell cell:row){
@@ -132,11 +116,6 @@ public class WorkingWithExcel {
                 }
             }
 
-
-//            Row row = sheet.getRow(1);
-//            Cell cell = row.getCell(2);
-//            cell.setCellValue(45);
-
             if(recordFound) {
                 try (FileOutputStream outputStream = new FileOutputStream(filepath)) {
                     workbook.write(outputStream);
@@ -150,4 +129,38 @@ public class WorkingWithExcel {
         }
 
     }
+
+    private static void addingDataToExcel(String filepath, Scanner scn) throws IOException {
+        try (FileInputStream inputStream = new FileInputStream(filepath);
+             XSSFWorkbook workbook = new XSSFWorkbook(inputStream)) {
+            XSSFSheet sheet = workbook.getSheetAt(0);
+
+            int lastRowNumber = sheet.getPhysicalNumberOfRows();
+            System.out.print("enter number of members data you want to add : ");
+            int members = scn.nextInt();
+
+            for(int i=0;i<members;i++){
+                Row row = sheet.createRow(lastRowNumber);
+                System.out.print("id : ");
+                int id = scn.nextInt();
+                System.out.print("name : ");
+                scn.nextLine();
+                String name = scn.nextLine();
+                System.out.print("marks : ");
+                int marks = scn.nextInt();
+
+                row.createCell(0).setCellValue(id);
+                row.createCell(1).setCellValue(name);
+                row.createCell(2).setCellValue(marks);
+                lastRowNumber++;
+            }
+            try(FileOutputStream fileOutputStream = new FileOutputStream(filepath)){
+                workbook.write(fileOutputStream);
+                System.out.println("Excel file data added successfully");
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
 }
